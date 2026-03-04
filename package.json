@@ -10,14 +10,18 @@
     "test": "jest"
   },
   "dependencies": {
-    "@react-navigation/bottom-tabs": "^7.15.3",
-    "@react-navigation/native": "^7.1.31",
-    "@react-navigation/stack": "^7.8.2",
+    "@react-native-community/netinfo": "^12.0.1",
+    "@react-navigation/bottom-tabs": "^7.15.5",
+    "@react-navigation/native": "^7.1.33",
+    "@react-navigation/stack": "^7.8.4",
+    "@realm/react": "^0.20.0",
+    "axios": "^1.13.6",
     "react": "19.0.0",
     "react-native": "0.79.0",
-    "react-native-gesture-handler": "^2.30.0",
-    "react-native-safe-area-context": "^5.7.0",
-    "react-native-screens": "^4.24.0"
+    "react-native-gesture-handler": "^2.21.0",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-screens": "4.10.0",
+    "realm": "^20.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
