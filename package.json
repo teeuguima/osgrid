@@ -16,12 +16,16 @@
     "@react-navigation/stack": "^7.8.4",
     "@realm/react": "^0.20.0",
     "axios": "^1.13.6",
+    "date-fns": "^4.1.0",
     "react": "19.0.0",
     "react-native": "0.79.0",
+    "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "^2.21.0",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "4.10.0",
-    "realm": "^20.2.0"
+    "reactotron-react-native": "^5.1.18",
+    "realm": "^20.2.0",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -7,10 +7,10 @@
     "customConditions": ["react-native"], 
     "jsx": "react-native",
     "strict": true,
-    "allowLibCheck": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
-  }
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": ["**/*.ts", "**/*.tsx", "env.d.ts"]
 }
