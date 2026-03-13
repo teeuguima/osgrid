@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useState} from 'react';
 import {FlatList, TouchableOpacity, StyleSheet} from 'react-native';
 import {Plus, Wifi, WifiOff} from 'lucide-react-native';
 
@@ -11,28 +11,41 @@ import {Block} from '../components/Block';
 import {Typography} from '../components/Typography';
 import {OSCard} from '../components/OSCard';
 import {HomeSkeleton} from '../components/HomeSkeleton';
-import {OSEnumStatus, statusLabels} from '../constants/enums';
-
-const STATUS_MAP = {
-  Pending: {
-    variant: 'primary' as const,
-  },
-  'In Progress': {
-    variant: 'warning' as const,
-  },
-  Completed: {
-    variant: 'success' as const,
-  },
-};
+import {OSEnumStatus, STATUS_MAP, statusLabels} from '../constants/enums';
+import {DateSelector} from '../components/DateSelector';
+import {useFocusEffect} from '@react-navigation/native';
 
 export const HomeScreen = ({navigation}: any) => {
   const realm = useRealm();
-  const orders = useQuery(OrderService);
-  const {isOnline, fetchOrders, isLoading} = useOSStore();
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useEffect(() => {
-    fetchOrders(realm);
-  }, [isOnline, realm, fetchOrders]);
+  const startOfDay = new Date(selectedDate);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(selectedDate);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const orders = useQuery(
+    OrderService,
+    collection => {
+      return collection.filtered(
+        'createdAt >= $0 && createdAt <= $1',
+        startOfDay,
+        endOfDay,
+      );
+    },
+    [selectedDate],
+  );
+
+  const {isOnline, isLoading} = useOSStore();
+
+  const fetchOrders = useOSStore(state => state.fetchOrders);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchOrders(realm);
+    }, [fetchOrders, realm]),
+  );
 
   const renderItem = ({item}: {item: OrderService}) => {
     const statusConfig = STATUS_MAP[item.status as keyof typeof STATUS_MAP];
@@ -78,6 +91,8 @@ export const HomeScreen = ({navigation}: any) => {
           Visualize e gerencie seus chamados
         </Typography>
       </Block>
+
+      <DateSelector date={selectedDate} onDateChange={setSelectedDate} />
 
       {isLoading && orders.length === 0 ? (
         <HomeSkeleton />

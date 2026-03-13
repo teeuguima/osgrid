@@ -29,7 +29,7 @@ export const Modal = ({
     <RNModal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
         <Block flex bottom style={styles.overlay}>
@@ -41,30 +41,29 @@ export const Modal = ({
                 width="100%"
                 color={theme.colors.surface}
                 style={styles.sheet}
-                p="lg"
+                p={3}
                 shadow="medium">
                 <Block
                   width={40}
                   height={5}
                   color={theme.colors.secondary[200]}
-                  center
+                  radius={1}
                   style={styles.handle}
                 />
 
-                <Typography variant="h2" style={{marginBottom: 8}}>
-                  {title}
-                </Typography>
+                <Block gap={1} mb={3}>
+                  <Typography variant="h2">{title}</Typography>
 
-                {description && (
-                  <Typography
-                    variant="body"
-                    color={theme.colors.text.secondary}
-                    style={{marginBottom: 16}}>
-                    {description}
-                  </Typography>
-                )}
+                  {description && (
+                    <Typography
+                      variant="body"
+                      color={theme.colors.text.secondary}>
+                      {description}
+                    </Typography>
+                  )}
+                </Block>
 
-                <Block mt={1}>{children}</Block>
+                <Block>{children}</Block>
               </Block>
             </TouchableWithoutFeedback>
           </KeyboardAvoidingView>
@@ -76,16 +75,16 @@ export const Modal = ({
 
 const styles = StyleSheet.create({
   overlay: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   sheet: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
   },
   handle: {
     alignSelf: 'center',
-    marginBottom: 20,
-    marginTop: -5,
+    marginBottom: 24,
+    marginTop: -8,
   },
 });

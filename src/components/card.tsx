@@ -3,7 +3,6 @@ import {TouchableOpacity, ViewStyle} from 'react-native';
 import {theme} from '../theme';
 import {Block} from './Block';
 
-// Tipagem alinhada com a nova arquitetura (Token do tema ou Número para 8*valor)
 type SpacingValue = keyof typeof theme.spacing | number;
 
 interface CardProps {

@@ -48,7 +48,6 @@ export const Button = ({
   mr,
   ...props
 }: ButtonProps) => {
-  // Resolução de cores
   const baseColor =
     (theme.colors as any)[color]?.[600] ||
     (theme.colors as any)[color] ||

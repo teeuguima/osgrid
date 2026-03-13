@@ -1,9 +1,10 @@
 import {createRealmContext} from '@realm/react';
 import {OrderService} from './OrderService';
+import {AppSettings} from './AppSettings';
 
 const realmConfig: Realm.Configuration = {
-  schema: [OrderService],
-  schemaVersion: 1,
+  schema: [OrderService, AppSettings],
+  schemaVersion: 2,
 };
 
 const {RealmProvider, useRealm, useQuery, useObject} =

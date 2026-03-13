@@ -21,6 +21,7 @@ import {Card} from '../components/Card';
 import {DeleteConfirmationModal} from '../components/DeleteConfirmationModal';
 import {UpdateMode} from 'realm';
 import {Button} from '../components/Button';
+import {STATUS_MAP, statusLabels, OSEnumStatus} from '../constants/enums';
 
 export const DetailsOSScreen = ({route, navigation}: any) => {
   const {osId} = route.params;
@@ -53,16 +54,28 @@ export const DetailsOSScreen = ({route, navigation}: any) => {
 
   const confirmDelete = async () => {
     try {
-      realm.write(() => {
-        if (os) realm.delete(os);
-      });
       setIsDeleteModalVisible(false);
       navigation.goBack();
+
+      realm.write(() => {
+        if (os && os.isValid) {
+          realm.delete(os);
+        }
+      });
+
       await api.delete(`/work-orders/${osId}`);
     } catch (error) {
-      console.log('Erro ao deletar na API, removido apenas localmente.');
+      console.log('Erro ao deletar:', error);
     }
   };
+
+  if (!os || !os.isValid) {
+    return <ActivityIndicator />;
+  }
+
+  const statusConfig =
+    STATUS_MAP[os.status as keyof typeof STATUS_MAP] || STATUS_MAP.Pending;
+  const label = statusLabels[os.status as OSEnumStatus] || 'Pendente';
 
   return (
     <Block flex color={theme.colors.background}>
@@ -71,7 +84,6 @@ export const DetailsOSScreen = ({route, navigation}: any) => {
         showsVerticalScrollIndicator={false}>
         <Block flex between>
           <Block>
-            {/* Header: ID e Sync Status */}
             <Block row between center mb={3}>
               <Block row center>
                 <Hash size={14} color={theme.colors.text.light} />
@@ -79,23 +91,18 @@ export const DetailsOSScreen = ({route, navigation}: any) => {
                   variant="caption"
                   color={theme.colors.text.light}
                   style={{marginLeft: 4}}>
-                  ID: {os._id.slice(-6).toUpperCase()}
+                  ID: {os?._id.slice(-6).toUpperCase()}
                 </Typography>
               </Block>
               {!os.isSynced && (
-                <Badge label="Pendente Sync" variant="warning" />
+                <Badge label="Sincronização pendente" variant="warning" />
               )}
             </Block>
 
             <Card p={3} mb={3}>
               <Block gap={3}>
                 <Block gap={1}>
-                  <Badge
-                    label={
-                      os.status === 'Completed' ? 'Concluído' : 'Em Aberto'
-                    }
-                    variant={os.status === 'Completed' ? 'success' : 'primary'}
-                  />
+                  <Badge label={label} variant={statusConfig.variant} />
                   <Typography variant="h2">{os.title}</Typography>
                 </Block>
 

@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {ScrollView, Switch, TouchableOpacity, StyleSheet} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 import {Picker} from '@react-native-picker/picker';
 import {useRoute, useNavigation} from '@react-navigation/native';
@@ -25,7 +25,6 @@ const schema = yup.object({
   assignedTo: yup.string().required('Informe quem executará o serviço'),
   description: yup.string().optional(),
   status: yup.string().required(),
-  completed: yup.boolean(),
 });
 
 export const RegisterOSScreen = () => {
@@ -49,7 +48,6 @@ export const RegisterOSScreen = () => {
       description: '',
       assignedTo: '',
       status: OSEnumStatus.PENDING,
-      completed: false,
     },
   });
 
@@ -60,14 +58,13 @@ export const RegisterOSScreen = () => {
         description: os.description,
         assignedTo: os.assignedTo,
         status: os.status as OSEnumStatus,
-        completed: os.completed,
       });
     }
   }, [os, reset]);
 
   const onSubmit = async (formData: any) => {
     const currentId = isEditing ? osId : new Date().getTime().toString();
-
+    const isActuallyCompleted = formData.status === OSEnumStatus.COMPLETED;
     try {
       realm.write(() => {
         realm.create(
@@ -75,6 +72,7 @@ export const RegisterOSScreen = () => {
           {
             _id: String(currentId),
             ...formData,
+            completed: isActuallyCompleted,
             isSynced: false,
             updatedAt: new Date(),
             createdAt: isEditing ? os?.createdAt : new Date(),
@@ -104,10 +102,6 @@ export const RegisterOSScreen = () => {
       <ScrollView
         contentContainerStyle={{padding: theme.spacing.layout}}
         showsVerticalScrollIndicator={false}>
-        <Typography variant="h2" style={{marginBottom: 16}}>
-          {isEditing ? 'Editar Ordem' : 'Nova Ordem'}
-        </Typography>
-
         <Block gap={1}>
           <Controller
             control={control}
@@ -169,30 +163,6 @@ export const RegisterOSScreen = () => {
                 )}
               />
             </Block>
-          </Block>
-
-          <Block row between center card p={2} mv={2} radius="base">
-            <Block flex>
-              <Typography variant="bodyBold">Marcar como Concluído</Typography>
-              <Typography variant="caption" color={theme.colors.text.secondary}>
-                Finaliza a contagem de tempo
-              </Typography>
-            </Block>
-            <Controller
-              control={control}
-              name="completed"
-              render={({field: {onChange, value}}) => (
-                <Switch
-                  value={value}
-                  onValueChange={onChange}
-                  trackColor={{
-                    false: theme.colors.secondary[200],
-                    true: theme.colors.primary[200],
-                  }}
-                  thumbColor={value ? theme.colors.primary[600] : '#f4f3f4'}
-                />
-              )}
-            />
           </Block>
 
           <Controller

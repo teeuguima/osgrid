@@ -6,6 +6,7 @@ import {RootStackParamList} from './types';
 import {HomeScreen} from '../screens/HomeScreen';
 import {DetailsOSScreen} from '../screens/DetailsOSScreen';
 import {RegisterOSScreen} from '../screens/RegisterOSScreen';
+import {theme} from '../theme';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -15,25 +16,28 @@ export const AppNavigator = () => {
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
-          headerStyle: {backgroundColor: '#f4f4f4'},
-          headerTintColor: '#333',
+          headerStyle: {backgroundColor: theme.colors.background},
+          headerTintColor: theme.colors.text.main,
           headerTitleStyle: {fontWeight: 'bold'},
+          headerShadowVisible: false,
         }}>
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{title: 'Listagem de ordens'}}
+          options={{headerShown: false}}
         />
+
         <Stack.Screen
           name="Details"
           component={DetailsOSScreen}
-          options={{title: ''}}
+          options={{title: 'Detalhes'}}
         />
+
         <Stack.Screen
           name="Form"
           component={RegisterOSScreen}
           options={({route}) => ({
-            title: route.params?.os ? 'Editar OS' : 'Nova OS',
+            title: route.params?.osId ? 'Editar OS' : 'Nova OS',
           })}
         />
       </Stack.Navigator>

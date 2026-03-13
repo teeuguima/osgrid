@@ -5,7 +5,19 @@ export enum OSEnumStatus {
 }
 
 export const statusLabels: Record<OSEnumStatus, string> = {
-  [OSEnumStatus.PENDING]: 'Aberto',
+  [OSEnumStatus.PENDING]: 'Pendente',
   [OSEnumStatus.IN_PROGRESS]: 'Em Progresso',
   [OSEnumStatus.COMPLETED]: 'Concluído',
+};
+
+export const STATUS_MAP = {
+  Pending: {
+    variant: 'primary' as const,
+  },
+  'In Progress': {
+    variant: 'primary' as const,
+  },
+  Completed: {
+    variant: 'success' as const,
+  },
 };
