@@ -1,97 +1,138 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# OSGrid - Mobile App 📱
 
-# Getting Started
+Este documento detalha os passos necessários para configurar o ambiente de desenvolvimento e rodar o projeto em modo debug.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## 💻 Pré-requisitos do Sistema
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+Antes de começar, você precisa garantir que sua máquina tem as ferramentas básicas instaladas.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 🟢 Requisitos Globais
 
-```sh
-# Using npm
-npm start
+- **Node.js**: v18.x ou superior (LTS recomendada).
+- **Gerenciador de Pacotes**: `npm` ou `yarn`.
+- **Java Development Kit (JDK)**: Versão 11 ou 17 (obrigatório para compilação Android).
+- **Git**: Para versionamento.
 
-# OR using Yarn
-yarn start
+---
+
+## 🛠️ Configuração por Plataforma
+
+### 🤖 Android (Windows, Linux ou macOS)
+
+1.  **Android Studio**: Instale a versão mais recente.
+2.  **SDK Manager**:
+    - Instale o **Android SDK Platform 33 ou 34**.
+    - Certifique-se de ter o **Android SDK Build-Tools** e o **Android Emulator** instalados.
+3.  **Variáveis de Ambiente**: Configure o `ANDROID_HOME` no seu sistema e adicione os caminhos de `platform-tools` ao seu PATH.
+
+### 🍎 iOS (Apenas macOS)
+
+1.  **Xcode**: Instale via App Store (versão 14 ou superior).
+2.  **CocoaPods**: Gerenciador de dependências nativas do iOS.
+    ```bash
+    sudo gem install cocoapods
+    ```
+3.  **Command Line Tools**: No Xcode, vá em _Settings > Locations_ e selecione a versão atual no dropdown.
+
+---
+
+## 🚀 Etapas Iniciais de Configuração
+
+Siga estes comandos em ordem no seu terminal:
+
+1.  **Clonar o Projeto:**
+
+    ```bash
+    git clone [https://github.com/seu-usuario/osgrid.git](https://github.com/seu-usuario/osgrid.git)
+    cd osgrid
+    ```
+
+2.  **Instalar Dependências de JavaScript:**
+
+    ```bash
+    npm install
+    # ou se usar yarn:
+    yarn install
+    ```
+
+3.  **Instalar Dependências Nativas (iOS):**
+    _Pule este passo se estiver no Windows ou Linux._
+
+    ```bash
+    cd ios && pod install && cd ..
+    ```
+
+4.  **Configurar Variáveis de Ambiente:**
+    Crie um arquivo `.env` na raiz do projeto (use o `.env.example` como base) e insira as chaves de API e URLs do Backend.
+
+---
+
+## 👨‍💻 Executando em Modo Debug
+
+Para rodar o projeto com suporte a Hot Reload e ferramentas de inspeção:
+
+# 🛠️ Primeiros Passos
+
+Siga estes comandos para preparar o projeto após clonar o repositório:
+
+## Instalar Dependências JS
+
+```bash
+npm install
 ```
 
-## Step 2: Build and run your app
+## Instalar Dependências Nativas (iOS apenas)
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```bash
+cd ios && pod install && cd ..
 ```
 
-### iOS
+## Configurar Variáveis (.env)
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+Copie o arquivo de exemplo e preencha com as URLs de API:
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+cp .env.example .env
 ```
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
+# 🚀 Executando o Projeto em Modo Debug
+
+Para rodar a aplicação com suporte a _Hot Reloading_, siga estes dois passos em terminais separados:
+
+## 1️⃣ Iniciar o Metro Bundler
+
+O Metro é o servidor que compila o JavaScript para o dispositivo.
+
+```bash
+npx react-native start
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 2️⃣ Iniciar a Aplicação
 
-```sh
-# Using npm
-npm run ios
+Com o Metro rodando, abra uma nova aba no terminal e escolha a plataforma.
 
-# OR using Yarn
-yarn ios
+### Para Android
+
+```bash
+npx react-native run-android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+### Para iOS
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+npx react-native run-ios
+```
 
-## Step 3: Modify your app
+---
 
-Now that you have successfully run the app, let's make changes!
+# ⚠️ Notas Importantes
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+**Processadores Apple (M1/M2/M3)**: Se o `pod install` falhar, tente:
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+```bash
+arch -x86_64 pod install
+```
