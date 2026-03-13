@@ -4,8 +4,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {RootStackParamList} from './types';
 
 import {HomeScreen} from '../screens/HomeScreen';
-import {DetailsScreen} from '../screens/DetailsScreen';
-import {FormScreen} from '../screens/FormScreen';
+import {DetailsOSScreen} from '../screens/DetailsOSScreen';
+import {RegisterOSScreen} from '../screens/RegisterOSScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -26,12 +26,12 @@ export const AppNavigator = () => {
         />
         <Stack.Screen
           name="Details"
-          component={DetailsScreen}
-          options={{title: 'Detalhes'}}
+          component={DetailsOSScreen}
+          options={{title: ''}}
         />
         <Stack.Screen
           name="Form"
-          component={FormScreen}
+          component={RegisterOSScreen}
           options={({route}) => ({
             title: route.params?.os ? 'Editar OS' : 'Nova OS',
           })}

@@ -1,3 +1,5 @@
+import {OSEnumStatus} from '../constants/enums';
+
 export type OSStatus = 'Pending' | 'In Progress' | 'Completed';
 
 export type WorkOrder = {
@@ -11,4 +13,13 @@ export type WorkOrder = {
   deletedAt?: string; // ISODate
   completed: boolean;
   deleted: boolean;
+};
+
+export type OSFormData = {
+  title: string;
+  description: string;
+  assignedTo: string;
+  status: OSEnumStatus;
+  completed: boolean;
+  updatedAt?: Date;
 };

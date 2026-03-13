@@ -8,8 +8,10 @@ export class OrderService extends Realm.Object<OrderService> {
   status!: OSStatus;
   assignedTo!: string;
   createdAt!: Date;
-  updatedAt!: Date;
-  deleted!: boolean;
+  updatedAt?: Date;
+  deletedA?: Date;
+  completed!: boolean;
+  deleted?: boolean;
   isSynced!: boolean;
 
   static schema: Realm.ObjectSchema = {
@@ -21,9 +23,11 @@ export class OrderService extends Realm.Object<OrderService> {
       description: 'string',
       status: 'string',
       assignedTo: 'string',
-      createdAt: 'date',
-      deleted: 'bool',
-      updatedAt: 'date',
+      createdAt: {type: 'date', default: () => new Date()},
+      updatedAt: 'date?',
+      deletedAt: 'date?',
+      completed: {type: 'bool', default: false},
+      deleted: {type: 'bool', default: false},
       isSynced: {type: 'bool', default: false},
     },
   };
