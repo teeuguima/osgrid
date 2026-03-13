@@ -1,67 +1,50 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {OrderService} from '../models/OrderService';
+import {TouchableOpacity, ViewStyle} from 'react-native';
+import {theme} from '../theme';
+import {Block} from './Block';
 
-interface Props {
-  os: OrderService;
-  onPress: () => void;
+// Tipagem alinhada com a nova arquitetura (Token do tema ou Número para 8*valor)
+type SpacingValue = keyof typeof theme.spacing | number;
+
+interface CardProps {
+  children: React.ReactNode;
+  p?: SpacingValue;
+  m?: SpacingValue;
+  mt?: SpacingValue;
+  mb?: SpacingValue;
+  radius?: keyof typeof theme.borderRadius | number;
+  onPress?: () => void;
+  row?: boolean;
+  style?: ViewStyle;
 }
 
-export const Card = ({os, onPress}: Props) => {
-  const statusColors = {
-    Aberto: '#ef4444',
-    'Em Andamento': '#f59e0b',
-    Concluído: '#10b981',
-  };
+export const Card = ({
+  children,
+  p = 2,
+  m,
+  mt,
+  mb,
+  radius = 1,
+  onPress,
+  row,
+  style,
+}: CardProps) => {
+  const Container = onPress ? TouchableOpacity : React.Fragment;
+  const containerProps = onPress ? {onPress, activeOpacity: 0.8} : {};
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{os.title}</Text>
-        <View
-          style={[styles.badge, {backgroundColor: statusColors[os.status]}]}>
-          <Text style={styles.badgeText}>{os.status}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.technician}>🔧 Técnico: {os.assignedTo}</Text>
-      <Text numberOfLines={2} style={styles.description}>
-        {os.description}
-      </Text>
-
-      {!os.isSynced && (
-        <Text style={styles.syncWarning}>⏳ Aguardando sincronização...</Text>
-      )}
-    </TouchableOpacity>
+    <Container {...containerProps}>
+      <Block
+        card
+        row={row}
+        p={p}
+        m={m}
+        mt={mt}
+        mb={mb}
+        radius={radius}
+        style={style}>
+        {children}
+      </Block>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 12,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  title: {fontSize: 16, fontWeight: 'bold', color: '#1e293b'},
-  badge: {paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12},
-  badgeText: {color: '#fff', fontSize: 11, fontWeight: 'bold'},
-  technician: {fontSize: 14, color: '#64748b', marginBottom: 4},
-  description: {fontSize: 13, color: '#94a3b8'},
-  syncWarning: {
-    fontSize: 11,
-    color: '#f59e0b',
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-});

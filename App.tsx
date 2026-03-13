@@ -7,11 +7,13 @@ import React, {useEffect} from 'react';
 import {StatusBar, useColorScheme, View} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import NetInfo from '@react-native-community/netinfo';
+import Toast from 'react-native-toast-message';
 
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {RealmProvider, useRealm} from './src/models';
 import {useOSStore} from './src/store/useOSStore';
 import {AppNavigator} from './src/navigation/AppNavigator';
+import {theme} from './src/theme';
 
 function AppContent(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -30,16 +32,17 @@ function AppContent(): React.JSX.Element {
 
   const backgroundStyle = {
     flex: 1,
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: isDarkMode ? Colors.darker : theme.colors.background,
   };
 
   return (
     <View style={backgroundStyle}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+        backgroundColor={theme.colors.background}
       />
       <AppNavigator />
+      <Toast />
     </View>
   );
 }

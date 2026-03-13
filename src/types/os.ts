@@ -8,9 +8,9 @@ export type WorkOrder = {
   description: string;
   status: OSStatus;
   assignedTo: string;
-  createdAt: string; // ISODate
-  updatedAt: string; // ISODate
-  deletedAt?: string; // ISODate
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
   completed: boolean;
   deleted: boolean;
 };

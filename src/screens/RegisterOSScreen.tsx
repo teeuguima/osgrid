@@ -1,13 +1,5 @@
 import React, {useEffect} from 'react';
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-  Switch,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import {ScrollView, Switch, TouchableOpacity, StyleSheet} from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 import {Picker} from '@react-native-picker/picker';
 import {useRoute, useNavigation} from '@react-navigation/native';
@@ -15,9 +7,26 @@ import {UpdateMode} from 'realm';
 
 import {useRealm, useObject} from '../models';
 import {OrderService} from '../models/OrderService';
-import api from '../services/api';
-import {OSFormData} from '../types/os';
 import {OSEnumStatus} from '../constants/enums';
+import {Block} from '../components/Block';
+import {Typography} from '../components/Typography';
+import {theme} from '../theme';
+import {Input} from '../components/Input';
+import Toast from 'react-native-toast-message';
+import {yupResolver} from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import {Button} from '../components/Button';
+
+const schema = yup.object({
+  title: yup
+    .string()
+    .required('O título é essencial para identificar o serviço')
+    .min(5, 'Título muito curto (mínimo 5 caracteres)'),
+  assignedTo: yup.string().required('Informe quem executará o serviço'),
+  description: yup.string().optional(),
+  status: yup.string().required(),
+  completed: yup.boolean(),
+});
 
 export const RegisterOSScreen = () => {
   const navigation = useNavigation();
@@ -32,9 +41,13 @@ export const RegisterOSScreen = () => {
     control,
     handleSubmit,
     reset,
-    formState: {errors},
-  } = useForm<OSFormData>({
+    formState: {errors, isSubmitting},
+  } = useForm({
+    resolver: yupResolver(schema),
     defaultValues: {
+      title: '',
+      description: '',
+      assignedTo: '',
       status: OSEnumStatus.PENDING,
       completed: false,
     },
@@ -52,9 +65,8 @@ export const RegisterOSScreen = () => {
     }
   }, [os, reset]);
 
-  const onSubmit = async (formData: OSFormData) => {
+  const onSubmit = async (formData: any) => {
     const currentId = isEditing ? osId : new Date().getTime().toString();
-    const now = new Date();
 
     try {
       realm.write(() => {
@@ -62,203 +74,159 @@ export const RegisterOSScreen = () => {
           OrderService,
           {
             _id: String(currentId),
-            title: formData.title,
-            description: formData.description,
-            assignedTo: formData.assignedTo,
-            status: formData.status,
-            completed: formData.completed,
+            ...formData,
             isSynced: false,
-            updatedAt: isEditing ? now : undefined,
-            createdAt: isEditing ? os?.createdAt ?? now : now,
+            updatedAt: new Date(),
+            createdAt: isEditing ? os?.createdAt : new Date(),
           },
           UpdateMode.Modified,
         );
       });
 
-      let response;
-      if (isEditing) {
-        response = await api.put(`/work-orders/${currentId}`, formData);
-      } else {
-        response = await api.post('/work-orders', formData);
-      }
+      Toast.show({
+        type: 'success',
+        text1: isEditing ? 'OS Atualizada!' : 'OS Criada!',
+        text2: 'Os dados foram salvos localmente.',
+      });
 
-      if (response.status === 200 || response.status === 201) {
-        const remoteData = response.data;
-
-        realm.write(() => {
-          if (!isEditing) {
-            const tempOS = realm.objectForPrimaryKey(OrderService, currentId);
-            if (tempOS) realm.delete(tempOS);
-          }
-
-          realm.create(
-            OrderService,
-            {
-              ...remoteData,
-              _id: remoteData.id,
-              isSynced: true,
-              updatedAt: remoteData.updatedAt
-                ? new Date(remoteData.updatedAt)
-                : null,
-              createdAt: remoteData.createdAt
-                ? new Date(remoteData.createdAt)
-                : new Date(),
-            },
-            UpdateMode.Modified,
-          );
-        });
-      }
-    } catch (apiError) {
-      console.log(
-        'Modo Offline: O dado permanece no Realm para sync posterior.',
-      );
+      navigation.goBack();
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao salvar',
+        text2: 'Tente novamente em instantes.',
+      });
     }
-
-    navigation.goBack();
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.label}>Título da Ordem</Text>
-      <Controller
-        control={control}
-        rules={{required: 'O título é obrigatório'}}
-        name="title"
-        render={({field: {onChange, value}}) => (
-          <TextInput
-            style={[styles.input, errors.title && styles.inputError]}
-            placeholder="Ex: Troca de Roteador"
-            value={value}
-            onChangeText={onChange}
-          />
-        )}
-      />
-      {errors.title && (
-        <Text style={styles.errorText}>{errors.title.message}</Text>
-      )}
+    <Block flex color={theme.colors.background}>
+      <ScrollView
+        contentContainerStyle={{padding: theme.spacing.layout}}
+        showsVerticalScrollIndicator={false}>
+        <Typography variant="h2" style={{marginBottom: 16}}>
+          {isEditing ? 'Editar Ordem' : 'Nova Ordem'}
+        </Typography>
 
-      <Text style={styles.label}>Técnico Responsável</Text>
-      <Controller
-        control={control}
-        rules={{required: 'Informe o técnico'}}
-        name="assignedTo"
-        render={({field: {onChange, value}}) => (
-          <TextInput
-            style={[styles.input, errors.assignedTo && styles.inputError]}
-            placeholder="Nome do técnico"
-            value={value}
-            onChangeText={onChange}
-          />
-        )}
-      />
-
-      <Text style={styles.label}>Status</Text>
-      <View style={styles.pickerContainer}>
-        <Controller
-          control={control}
-          name="status"
-          render={({field: {onChange, value}}) => (
-            <Picker selectedValue={value} onValueChange={onChange}>
-              <Picker.Item label="Aberto" value={OSEnumStatus.PENDING} />
-              <Picker.Item
-                label="Em Andamento"
-                value={OSEnumStatus.IN_PROGRESS}
-              />
-              <Picker.Item label="Concluído" value={OSEnumStatus.COMPLETED} />
-            </Picker>
-          )}
-        />
-      </View>
-
-      <View style={styles.row}>
-        <Text style={styles.label}>Concluído?</Text>
-        <Controller
-          control={control}
-          name="completed"
-          render={({field: {onChange, value}}) => (
-            <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>{value ? 'Sim' : 'Não'}</Text>
-              <Switch
+        <Block gap={1}>
+          <Controller
+            control={control}
+            name="title"
+            render={({field: {onChange, value}}) => (
+              <Input
+                label="Título da Ordem"
+                placeholder="Ex: Troca de Roteador"
                 value={value}
-                onValueChange={onChange}
-                trackColor={{false: '#cbd5e1', true: '#93c5fd'}}
-                thumbColor={value ? '#2563eb' : '#f4f3f4'}
+                onChangeText={onChange}
+                error={errors.title?.message}
               />
-            </View>
-          )}
-        />
-      </View>
-
-      <Text style={styles.label}>Descrição</Text>
-      <Controller
-        control={control}
-        name="description"
-        render={({field: {onChange, value}}) => (
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Detalhes do serviço..."
-            multiline
-            numberOfLines={4}
-            value={value}
-            onChangeText={onChange}
+            )}
           />
-        )}
-      />
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>
-          {isEditing ? 'Atualizar Ordem' : 'Salvar Ordem'}
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <Controller
+            control={control}
+            name="assignedTo"
+            render={({field: {onChange, value}}) => (
+              <Input
+                label="Técnico Responsável"
+                placeholder="Nome do técnico"
+                value={value}
+                onChangeText={onChange}
+                error={errors.assignedTo?.message}
+              />
+            )}
+          />
+
+          <Block gap={0.5}>
+            <Typography
+              variant="bodySmallBold"
+              color={theme.colors.text.secondary}>
+              Status do Serviço
+            </Typography>
+            <Block
+              color={theme.colors.surface}
+              radius="base"
+              style={styles.pickerWrapper}>
+              <Controller
+                control={control}
+                name="status"
+                render={({field: {onChange, value}}) => (
+                  <Picker
+                    selectedValue={String(value)}
+                    onValueChange={onChange}
+                    dropdownIconColor={theme.colors.primary[600]}
+                    style={{color: theme.colors.text.main}}>
+                    <Picker.Item label="Aberto" value={OSEnumStatus.PENDING} />
+                    <Picker.Item
+                      label="Em Andamento"
+                      value={OSEnumStatus.IN_PROGRESS}
+                    />
+                    <Picker.Item
+                      label="Concluído"
+                      value={OSEnumStatus.COMPLETED}
+                    />
+                  </Picker>
+                )}
+              />
+            </Block>
+          </Block>
+
+          <Block row between center card p={2} mv={2} radius="base">
+            <Block flex>
+              <Typography variant="bodyBold">Marcar como Concluído</Typography>
+              <Typography variant="caption" color={theme.colors.text.secondary}>
+                Finaliza a contagem de tempo
+              </Typography>
+            </Block>
+            <Controller
+              control={control}
+              name="completed"
+              render={({field: {onChange, value}}) => (
+                <Switch
+                  value={value}
+                  onValueChange={onChange}
+                  trackColor={{
+                    false: theme.colors.secondary[200],
+                    true: theme.colors.primary[200],
+                  }}
+                  thumbColor={value ? theme.colors.primary[600] : '#f4f3f4'}
+                />
+              )}
+            />
+          </Block>
+
+          <Controller
+            control={control}
+            name="description"
+            render={({field: {onChange, value}}) => (
+              <Input
+                label="Descrição (opcional)"
+                placeholder="Descreva o problema e a solução..."
+                multiline
+                numberOfLines={4}
+                value={value}
+                onChangeText={onChange}
+                style={{height: 120, textAlignVertical: 'top'}}
+              />
+            )}
+          />
+
+          <Button
+            label={isEditing ? 'Salvar Alterações' : 'Confirmar'}
+            onPress={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+            mt={2}
+          />
+        </Block>
+      </ScrollView>
+    </Block>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#f8fafc'},
-  content: {padding: 20},
-  label: {fontSize: 14, fontWeight: '600', color: '#475569', marginBottom: 8},
-  input: {
-    backgroundColor: '#fff',
+  pickerWrapper: {
     borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 4,
-    color: '#1e293b',
-  },
-  inputError: {borderColor: '#ef4444'},
-  errorText: {color: '#ef4444', fontSize: 12, marginBottom: 12},
-  textArea: {height: 100, textAlignVertical: 'top'},
-  pickerContainer: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    marginBottom: 20,
+    borderColor: theme.colors.secondary[200],
     overflow: 'hidden',
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 25,
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  toggleRow: {flexDirection: 'row', alignItems: 'center'},
-  toggleLabel: {marginRight: 8, color: '#64748b', fontWeight: 'bold'},
-  button: {
-    backgroundColor: '#2563eb',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-    elevation: 2,
-  },
-  buttonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'},
 });
